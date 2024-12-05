@@ -1,0 +1,78 @@
+// DOM Elements
+const contactForm = document.getElementById("contactForm");
+const nameInput = document.getElementById("name");
+const phoneInput = document.getElementById("phone");
+const addressInput = document.getElementById("address");
+const searchInput = document.getElementById("search");
+const contactsList = document.getElementById("contacts");
+
+// Load contacts from localStorage
+function loadContacts() {
+  const contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+  renderContacts(contacts);
+}
+
+// Save contacts to localStorage
+function saveContacts(contacts) {
+  localStorage.setItem("contacts", JSON.stringify(contacts));
+}
+
+// Render contacts to the UI
+function renderContacts(contacts) {
+  contactsList.innerHTML = "";
+  contacts.forEach((contact, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div>
+        <span><strong>Name:</strong> ${contact.name}</span>
+        <span><strong>Phone:</strong> ${contact.phone}</span>
+        <span><strong>Address:</strong> ${contact.address}</span>
+      </div>
+      <button onclick="deleteContact(${index})">Delete</button>
+    `;
+    contactsList.appendChild(li);
+  });
+}
+
+// Add a new contact
+function addContact(event) {
+  event.preventDefault();
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const address = addressInput.value.trim();
+
+  if (name && phone && address) {
+    const contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+    contacts.push({ name, phone, address });
+    saveContacts(contacts);
+    renderContacts(contacts);
+    contactForm.reset();
+  } else {
+    alert("Please fill out all fields.");
+  }
+}
+
+// Delete a contact
+function deleteContact(index) {
+  const contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+  contacts.splice(index, 1);
+  saveContacts(contacts);
+  renderContacts(contacts);
+}
+
+// Search contacts
+function searchContacts(event) {
+  const query = event.target.value.toLowerCase();
+  const contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(query)
+  );
+  renderContacts(filteredContacts);
+}
+
+// Event Listeners
+contactForm.addEventListener("submit", addContact);
+searchInput.addEventListener("input", searchContacts);
+
+// Initialize the app
+loadContacts();
