@@ -1,4 +1,3 @@
-// DOM Elements
 const contactForm = document.getElementById("contactForm");
 const nameInput = document.getElementById("name");
 const phoneInput = document.getElementById("phone");
@@ -9,18 +8,19 @@ const contactsList = document.getElementById("contacts");
 // Load contacts from localStorage
 function loadContacts() {
   const contacts = JSON.parse(localStorage.getItem("contacts")) || [];
-  renderContacts(contacts);
+  return contacts.sort((a, b) => a.name.localeCompare(b.name)); // Ensure contacts are sorted
 }
 
 // Save contacts to localStorage
 function saveContacts(contacts) {
+  contacts.sort((a, b) => a.name.localeCompare(b.name)); // Sort before saving
   localStorage.setItem("contacts", JSON.stringify(contacts));
 }
 
-// Render contacts to the UI
+//Shows contacts to the UI
 function renderContacts(contacts) {
   contactsList.innerHTML = "";
-  contacts.forEach((contact, index) => {
+  contacts.forEach(contact => {
     const li = document.createElement("li");
     li.innerHTML = `
       <div>
@@ -28,13 +28,13 @@ function renderContacts(contacts) {
         <span><strong>Phone:</strong> ${contact.phone}</span>
         <span><strong>Address:</strong> ${contact.address}</span>
       </div>
-      <button onclick="deleteContact(${index})">Delete</button>
+      <button onclick="deleteContact('${contact.name}')">Delete</button>
     `;
     contactsList.appendChild(li);
   });
 }
 
-// Add a new contact
+// Add new contact
 function addContact(event) {
   event.preventDefault();
   const name = nameInput.value.trim();
@@ -42,7 +42,7 @@ function addContact(event) {
   const address = addressInput.value.trim();
 
   if (name && phone && address) {
-    const contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+    const contacts = loadContacts();
     contacts.push({ name, phone, address });
     saveContacts(contacts);
     renderContacts(contacts);
@@ -52,27 +52,48 @@ function addContact(event) {
   }
 }
 
-// Delete a contact
-function deleteContact(index) {
-  const contacts = JSON.parse(localStorage.getItem("contacts")) || [];
-  contacts.splice(index, 1);
-  saveContacts(contacts);
-  renderContacts(contacts);
+// Delete contact
+function deleteContact(nameToDelete) {
+  const contacts = loadContacts();
+  const updatedContacts = contacts.filter(contact => contact.name !== nameToDelete);
+  saveContacts(updatedContacts);
+  renderContacts(updatedContacts);
 }
 
-// Search contacts
+// Binary Search 
+function binarySearch(contacts, query) {
+  let left = 0;
+  let right = contacts.length - 1;
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const midName = contacts[mid].name.toLowerCase();
+
+    if (midName === query) {
+      return [contacts[mid]]; // EXACT match found
+    } else if (midName < query) {
+      left = mid + 1; // Search in the right half
+    } else {
+      right = mid - 1; // Search in the left half
+    }
+  }
+  return []; // If no match found
+}
+
+// Search contacts using Binary Search
 function searchContacts(event) {
-  const query = event.target.value.toLowerCase();
-  const contacts = JSON.parse(localStorage.getItem("contacts")) || [];
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(query)
-  );
-  renderContacts(filteredContacts);
+  const query = event.target.value.trim().toLowerCase();
+  const contacts = loadContacts();
+  
+  if (query === "") {
+    renderContacts(contacts); // Shows all contacts if the search box is empty
+  } else {
+    const result = binarySearch(contacts, query);
+    renderContacts(result);
+  }
 }
 
-// Event Listeners
 contactForm.addEventListener("submit", addContact);
 searchInput.addEventListener("input", searchContacts);
 
-// Initialize the app
-loadContacts();
+renderContacts(loadContacts());
