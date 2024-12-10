@@ -11,6 +11,7 @@ function loadContacts() {
   return contacts.sort((a, b) => a.name.localeCompare(b.name)); // Ensure contacts are sorted
 }
 
+
 // Save contacts to localStorage
 function saveContacts(contacts) {
   contacts.sort((a, b) => a.name.localeCompare(b.name)); // Sort before saving
@@ -92,6 +93,32 @@ function searchContacts(event) {
     renderContacts(result);
   }
 }
+
+// General Search Function
+function searchContacts(event) {
+  const query = event.target.value.trim().toLowerCase();
+  const contacts = loadContacts();
+
+  if (query === "") {
+    renderContacts(contacts); // Show all contacts if the search box is empty
+  } else {
+    const result = contacts.filter(contact => 
+      contact.name.toLowerCase().includes(query) || 
+      contact.phone.toLowerCase().includes(query) || 
+      contact.address.toLowerCase().includes(query)
+    );
+    renderContacts(result);
+  }
+}
+
+// Event listeners
+contactForm.addEventListener("submit", addContact);
+searchInput.addEventListener("input", searchContacts);
+
+renderContacts(loadContacts());
+
+
+// Event listeners
 
 contactForm.addEventListener("submit", addContact);
 searchInput.addEventListener("input", searchContacts);
