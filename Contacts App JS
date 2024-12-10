@@ -71,7 +71,7 @@ function binarySearch(contacts, query) {
     const midName = contacts[mid].name.toLowerCase();
 
     if (midName === query) {
-      return [contacts[mid]]; // EXACT match found
+      return [contacts[mid]];
     } else if (midName < query) {
       left = mid + 1; // Search in the right half
     } else {
