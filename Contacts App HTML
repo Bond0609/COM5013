@@ -16,7 +16,7 @@
       <button type="submit">Add Contact</button>
     </form>
 
-    <input type="text" id="search" placeholder="Search by name">
+    <input type="text" id="search" placeholder="Search Contacts">
     
     <div id="contactsList">
       <h2>Contacts</h2>
